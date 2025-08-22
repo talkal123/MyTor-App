@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { useEffect } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import Header from "../components/homePageComponents/HeaderHomePage";
@@ -19,6 +19,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "/components/ui/alert-dialog";
+import NavFooter from "@/components/homePageComponents/NavFooter";
 
 const Business = () => {
   const [data, setData] = useState([]);
@@ -26,6 +27,13 @@ const Business = () => {
   const [sorted, setSorted] = useState("");
   const [value, setValue] = useState("");
   const { newCategory } = useParams();
+  const searchRef = useRef(null);
+
+  const scrollToSearch = () => {
+    if (searchRef.current) {
+      searchRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  };
 
 
   
@@ -100,9 +108,9 @@ const topBusiness = filterArr.reduce((total, item) => {
 
   return (
     <div className="flex justify-center w-full">
-      <div className="relative w-full min-h-screen bg-gray-100">
+      <div className="max-w-[1100px] relative w-full min-h-screen bg-gray-100">
         <div
-          className="relative w-full min-h-[50%] bg-cover bg-center"
+          className="relative w-full min-h-[50%] md:min-h-[80%] bg-cover bg-center"
           style={{ backgroundImage: `url(${LocationImage})` }}
         >
           <div className="absolute top-8 left-4 right-4 flex justify-between gap-5">
@@ -111,6 +119,7 @@ const topBusiness = filterArr.reduce((total, item) => {
                 <IoMdSearch className="w-5 h-5 text-gray-400" />
               </div>
               <input
+                ref={searchRef}
                 type="text"
                 value={value}
                 onChange={(e) => setValue(e.target.value)}
@@ -125,13 +134,13 @@ const topBusiness = filterArr.reduce((total, item) => {
                   <PiSlidersThin className="w-6 h-6 " />
                 </div>
               </AlertDialogTrigger>
-              <AlertDialogContent>
+              <AlertDialogContent className="flex flex-col justify-center items-center">
                 <AlertDialogHeader>
-                  <AlertDialogTitle>More filters</AlertDialogTitle>
+                  <AlertDialogTitle>More filters:</AlertDialogTitle>
                   <AlertDialogDescription>
                     <div className="flex flex-col gap-5">
-                      <div className="flex flex-col gap-1">
-                        <span>Sort:</span>
+                      <div className="flex flex-col justify-center items-center gap-2">
+                        <span className="text-black text-lg">Sort:</span>
                         <div className="flex gap-2 justify-center items-center">
                           <div>A-Z</div>
                           <input onChange={(e) => setSorted(e.target.value)} type="radio" name="sort" value="a-z" />
@@ -142,8 +151,8 @@ const topBusiness = filterArr.reduce((total, item) => {
                         </div>
                       </div>
 
-                      <div className="flex flex-col gap-1">
-                        <div>Most Popular:</div>
+                      <div className="flex flex-col items-center gap-2">
+                        <div className="text-black text-lg">Most Popular:</div>
                         <div className="flex gap-2 justify-center items-center">
                           <span>Most Popular</span>
                           <input
@@ -168,7 +177,6 @@ const topBusiness = filterArr.reduce((total, item) => {
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                   <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction>Continue</AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>
@@ -176,8 +184,8 @@ const topBusiness = filterArr.reduce((total, item) => {
           </div>
         </div>
 
-        <div className="absolute top-[40vh] rounded-t-3xl left-0 w-full">
-          <div className="bg-gray-100 rounded-t-3xl p-4 shadow-lg ">
+        <div className="absolute top-[40vh] md:top-[70vh] rounded-t-3xl left-0 w-full">
+          <div className="bg-gray-100 rounded-t-3xl p-5 shadow-lg ">
             <div className="w-full flex justify-center p-2">
               <h2 className="text-xl font-semibold mb-4">
                 List of restaurants
@@ -239,7 +247,10 @@ const topBusiness = filterArr.reduce((total, item) => {
           </div>
         </div>
       </div>
+        {/* <p className="bg-red-500 fixed bottom-5 right-5 z-50 p-5 text-white w-full min-w-[110px] max-w-[1100px]">s</p> */}
+
     </div>
+    
   );
 };
 

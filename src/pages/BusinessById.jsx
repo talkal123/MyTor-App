@@ -7,6 +7,7 @@ import { CiMail } from "react-icons/ci";
 import { CiClock2 } from "react-icons/ci";
 import {
   AlertDialog,
+  AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
@@ -14,7 +15,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"
+} from "@/components/ui/alert-dialog";
 
 const BusinessById = () => {
   const date = new Date();
@@ -27,7 +28,8 @@ const BusinessById = () => {
   const [businessData, setBusinessData] = useState([]);
   const [businessAppointment, setBusinessAppointment] = useState([]);
   const [appointment, setAppointment] = useState("");
-  const [nameValue,setNameValue] = useState("")
+  const [nameValue, setNameValue] = useState("");
+  const [service, setService] = useState("");
 
   const arr = [
     {
@@ -78,30 +80,28 @@ const BusinessById = () => {
     }
   }, [id]);
 
-
   const changeAppointment = async (item) => {
-  try {
-    const newObject = { ...item, clientName: nameValue };
+    try {
+      if (nameValue.trim() === "") {
+        alert("Name required");
+        return;
+      }
 
-    const response = await axios.put(
-      `http://localhost:3000/appointment/${item._id}`,
-      newObject
-    );
+      const newObject = { ...item, clientName: nameValue };
+      const response = await axios.put(
+        `http://localhost:3000/appointment/${item._id}`,
+        newObject
+      );
 
-setBusinessAppointment((prev) =>
-      prev.map((appt) =>
-        appt._id === item._id ? response.data : appt
-      )
-    );
-    console.log("Appointment updated:", response.data);
-  } catch (error) {
-    console.error("Error updating appointment:", error);
-  }
-};
-
-
-
-  
+      setBusinessAppointment((prev) =>
+        prev.map((appt) => (appt._id === item._id ? response.data : appt))
+      );
+      setOpen(true);
+      console.log("Appointment updated:", response.data);
+    } catch (error) {
+      console.error("Error updating appointment:", error);
+    }
+  };
 
   const filteredAppointments = businessAppointment
     .filter((a) => a.clientName === null && a.date.split("T")[0] === time)
@@ -111,8 +111,8 @@ setBusinessAppointment((prev) =>
     <div className="flex justify-center bg-gray-200">
       <div className="max-w-[1100px] w-full p-5">
         <div className="border p-5 rounded-lg bg-white h-full">
-          <div className="flex flex-col justify-between h-full">
-            <div className="">
+          <div className="flex flex-col md:flex-row justify-between h-full">
+            <div className="pr-10 pl-10 w-full">
               <div className=" border-b-1 pt-5 pb-5">
                 <h2 className="font-bold text-xl">Book Your Appointment</h2>
               </div>
@@ -127,7 +127,7 @@ setBusinessAppointment((prev) =>
                 <div className="flex flex-col gap-2">
                   <div>
                     <h3 className="font-bold text-lg">
-                      {businessData?.services?.map((item) => item.name)}
+                      {businessData?.services?.map((item) => item.name, () => setService(item.name))}
                     </h3>
                   </div>
                   <div className="flex gap-1">
@@ -158,7 +158,7 @@ setBusinessAppointment((prev) =>
               </div>
               <div className="flex flex-wrap items-center justify-center gap-2 p-5 pt-10 pb-10">
                 {filteredAppointments.length === 0 ? (
-                  <p>No appointments</p>
+                  <p>Empty Appointments.</p>
                 ) : (
                   <div className="flex flex-wrap gap-2 items-center justify-center">
                     {filteredAppointments
@@ -168,57 +168,67 @@ setBusinessAppointment((prev) =>
                       )
                       .sort((a, b) => a.time.localeCompare(b.time))
                       .map((item, index) => (
-                        <div
-                          key={index}
-                          onClick={() => setAppointment(item.time)}
-                          style={{
-                            backgroundColor:
-                              item.time === appointment ? "#1E90FF" : "white",
-                            color:
-                              item.time === appointment ? "white" : "black",
-                          }}
-                          className="border cursor-pointer w-20 h-20 rounded-lg flex items-center justify-center"
-                        >
-                     <AlertDialog>
-  <AlertDialogTrigger>
-    <span>{item.time}</span>
-  </AlertDialogTrigger>
+                        <AlertDialog key={index}>
+                          <AlertDialogTrigger asChild>
+                            <div
+                              style={{
+                                backgroundColor:
+                                  item.time === appointment
+                                    ? "#1E90FF"
+                                    : "white",
+                                color:
+                                  item.time === appointment ? "white" : "black",
+                              }}
+                              className="border cursor-pointer w-20 h-20 rounded-lg flex items-center justify-center"
+                              onClick={() => setAppointment(item.time)}
+                            >
+                              {item.time}
+                            </div>
+                          </AlertDialogTrigger>
 
-  <AlertDialogContent>
-    <AlertDialogHeader>
-      <AlertDialogTitle>
-        Determine in {item.time}
-      </AlertDialogTitle>
-      <AlertDialogDescription>
-        <div className="flex flex-col gap-4">
-          <h3 className="text-xl font-semibold">Enter your details</h3>
-          <input
-            type="text"
-            placeholder="Your Name"
-            value={nameValue}
-            onChange={(e) => setNameValue(e.target.value)}
-            className="border p-2 rounded-lg w-full"
-          />
-        </div>
-      </AlertDialogDescription>
-    </AlertDialogHeader>
+                          <AlertDialogContent className="p-0">
+                            <AlertDialogHeader className="relative">
+                              <div className="absolute top-0 right-0">
+                                <AlertDialogAction className="border bg-white hover:bg-gray-200 cursor-pointer text-black rounded-full">
+                                  X
+                                </AlertDialogAction>
+                              </div>
+                              <AlertDialogTitle className="p-5">
+                                Determine in {item.time} || Type: {businessData?.services?.map((item) => item.name )}
+                              </AlertDialogTitle>
+                              <AlertDialogDescription className="p-5">
+                                <div className="flex flex-col gap-4">
+                                  <h3 className="text-xl font-semibold">
+                                    Enter your details
+                                  </h3>
+                                  <input
+                                    type="text"
+                                    placeholder="Your Name"
+                                    value={nameValue}
+                                    onChange={(e) =>
+                                      setNameValue(e.target.value)
+                                    }
+                                    className="border p-2 rounded-lg w-full"
+                                  />
+                                </div>
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
 
-    <AlertDialogFooter>
-      <AlertDialogCancel className="bg-black text-white p-2 rounded-lg font-semibold w-full" onClick={() => changeAppointment(item)}>
-        Determine
-      </AlertDialogCancel>
-
-      {/* <button
-        
-        className="bg-black text-white p-2 rounded-lg font-semibold w-full"
-      >
-        Determine
-      </button> */}
-    </AlertDialogFooter>
-  </AlertDialogContent>
-</AlertDialog>
-
-                        </div>
+                            <AlertDialogFooter className="p-5 w-full">
+                            {nameValue !== "" ? (
+                              <AlertDialogCancel
+                                className="bg-black text-white pt-5.5 pb-5.5 rounded-lg text-lg font-semibold w-full cursor-pointer"
+                                onClick={() => changeAppointment(item)}
+                              >
+                                Determine
+                              </AlertDialogCancel>
+                              ):(
+                              <button className="bg-gray-300 text-white p-2 pt-2 pb-2 text-lg rounded-lg font-semibold w-full">Determine</button>
+                              )}
+                              
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
                       ))}
                   </div>
                 )}

@@ -9,7 +9,7 @@ const PopularBusinesses = ({data,userDetails}) => {
         <h1 className='font-semibold text-lg'>Popular Businesses</h1>
         <span className='text-sm text-gray-500 cursor-pointer'>View all</span>
       </div>
-      <div className='p-1 mt-5 flex flex-col gap-2'>
+      <div className='p-1 mt-5 flex flex-col gap-5'>
         {data.length === 0 ? (
           <div className=' flex items-center justify-center'>
             <p>No business</p>
